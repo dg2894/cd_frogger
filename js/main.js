@@ -14,11 +14,14 @@ app.main = {
         SIZE: 50,
         MOVE_SPEED: 10,
         XPOS: 200,
-        YPOS: 200,
+        YPOS: 200
     }),
     OBSTACLE: Object.freeze({
-        NUM_CIRCLES_START: 5,
-        WIDTH: 50,
+        NUM_OBSTACLES: 5,
+        WIDTH: 20,
+        XPOS: 10,
+        YPOS: 10,
+        MOVE_SPEED: 8
     }),
     BUN_STATE: Object.freeze({ //fake enumeration, actually an object literal
         STANDING: 0,
@@ -30,6 +33,7 @@ app.main = {
         END: 5
     }),
 
+    obstacles: [],
     numCircles: 0,
     paused: false,
     animationID: 0,
@@ -67,6 +71,8 @@ app.main = {
 
     reset: function () {
         this.BUN = this.makeBun();
+        this.obstacles = this.makeObs(this.OBSTACLE.NUM_OBSTACLES);
+
     },
 
 
@@ -77,27 +83,70 @@ app.main = {
 
         // HOW MUCH TIME HAS GONE BY?
         var dt = this.calculateDeltaTime();
-        console.log(this.xDir);
 
         this.moveBun(dt);
+        this.moveObstacle(dt);
 
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
         this.drawBun(this.ctx);
+        this.drawObstacle(this.ctx);
     },
 
+    makeObs: function (num) {
+
+        var obstacleMove = function (dt) {
+            if (this.x < 640) {
+                this.x += getRandom(5, 20);
+            } else if (this.x >= 640) {
+                this.x = 0;
+            }
+        }
+
+        var obstacleDraw = function (ctx) {
+            console.log("called");
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.size, this.size);
+            ctx.closePath();
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.restore();
+        }
+
+        var array = [];
+        for (var i = 0; i < 5; i++) {
+
+            var o = {};
+            o.x = 20;
+            o.y = getRandom(0, 480);
+
+            o.size = this.OBSTACLE.WIDTH;
+
+            o.speed = this.OBSTACLE.MOVE_SPEED;
+
+            o.draw = obstacleDraw;
+            o.move = obstacleMove;
+
+            Object.seal(o);
+            array.push(o);
+        }
+
+        return array;
+
+    },
 
     makeBun: function () {
 
         var bunMove = function (dt) {
-            if (myKeys.keydown[myKeys.KEYBOARD.KEY_LEFT]) {
+            if (myKeys.keydown[myKeys.KEYBOARD.KEY_LEFT] && this.x > 0) {
                 this.x -= 5;
-            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_RIGHT]) {
+            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_RIGHT] && this.x < 640 - 50) {
                 this.x += 5;
-            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_UP]) {
+            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_UP] && this.y > 0) {
                 this.y -= 5;
-            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_DOWN]) {
+            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_DOWN] && this.y < 480 - 50) {
                 this.y += 5;
             } else {
                 this.x += 0;
@@ -140,6 +189,20 @@ app.main = {
     drawBun: function (ctx) {
         var b = this.BUN;
         b.draw(ctx)
+    },
+
+    drawObstacle: function (ctx) {
+        for (var i = 0; i < this.obstacles.length; i++) {
+            var o = this.obstacles[i];
+            o.draw(ctx);
+        }
+    },
+
+    moveObstacle: function (dt) {
+        for (var i = 0; i < this.obstacles.length; i++) {
+            var o = this.obstacles[i]
+            o.move(dt);
+        }
     },
 
     moveBun: function (dt) {
