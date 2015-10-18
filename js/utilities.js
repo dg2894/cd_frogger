@@ -109,17 +109,19 @@ function requestFullscreen(element) {
 // http://stackoverflow.com/questions/2212604/javascript-check-mouse-clicked-inside-the-circle-or-polygon
 // using 'distance squared' here, why?
 // I is for "Instance"
-function pointInsideCircle(x, y, I) {
-    var dx = x - I.x;
-    var dy = y - I.y;
-    return dx * dx + dy * dy <= I.radius * I.radius;
-}
 
-function circlesIntersect(c1, c2) {
+/*function squaresIntersect(c1, c2) {
     var dx = c2.x - c1.x;
     var dy = c2.y - c1.y;
     var distance = Math.sqrt(dx * dx + dy * dy);
-    return distance < c1.radius + c2.radius;
+    return distance < c1.width / 2 + c2.width / 2;
+}*/
+
+function squaresIntersect(c1, c2) {
+    if (c1.x < c2.x + c2.width && c1.x + c1.width > c2.x &&
+        c1.y < c2.y + c2.height && c1.y + c1.height > c2.y) {
+        return true;
+    }
 }
 
 

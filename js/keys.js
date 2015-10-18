@@ -23,13 +23,14 @@ myKeys.keydown = [];
 // event listeners
 
 window.addEventListener("keydown", function (e) {
-    console.log("keydown=" + e.keyCode);
+    //console.log("keydown=" + e.keyCode);
     myKeys.keydown[e.keyCode] = true;
 });
 
 window.addEventListener("keyup", function (e) {
-    console.log("keyup=" + e.keyCode);
+    //console.log("keyup=" + e.keyCode);
     myKeys.keydown[e.keyCode] = false;
+    app.main.hopped = false;
 
     // pausing and resuming
     var char = String.fromCharCode(e.keyCode);
