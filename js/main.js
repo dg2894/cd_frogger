@@ -74,10 +74,11 @@ app.main = {
         // schedule a call to update()
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
-        /*       if (this.paused) {
-                   this.drawPauseScreen(this.ctx);
-                   return;
-               }*/
+        if (this.paused) {
+            this.drawPauseScreen(this.ctx);
+            return;
+        }
+
 
 
         // HOW MUCH TIME HAS GONE BY?
