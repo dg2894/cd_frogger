@@ -17,25 +17,18 @@ window.onload = function () {
     //the modules themselves
     //more full blown sandbox solutions are discussed here:
     //http://addyosmani.com/writing-modular-js
-    //app.sound.init();
-    //app.main.sound = app.sound;
-
+    app.sound.init();
+    app.main.sound = app.sound;
     app.main.init();
 };
 
 
 window.onblur = function () {
     console.log("blur at" + Date());
-    app.main.paused = true;
-    cancelAnimationFrame(app.main.animationID)
-    app.main.update();
     app.main.pauseGame();
 };
 
 window.onfocus = function () {
     console.log("focus at " + Date());
-    cancelAnimationFrame(app.main.animationID);
-    app.main.paused = false;
-    app.main.update();
     app.main.resumeGame();
 };

@@ -17,8 +17,8 @@ app.sound = (function () {
     function init() {
         bgAudio = document.querySelector("#bgAudio");
         bgAudio.volume = 0.25;
-        effectAudio = document.querySelector("#effectAudio");
-        effectAudio.volume = 0.3;
+        //effectAudio = document.querySelector("#effectAudio");
+        //effectAudio.volume = 0.3;
     }
 
     function stopBGAudio() {
@@ -26,7 +26,7 @@ app.sound = (function () {
         bgAudio.currentTime = 0;
     }
 
-    function playEffect() {
+    /*function playEffect() {
         effectAudio.src = "media/" + effectSounds[currentEffect];
         effectAudio.play();
         currentEffect += currentDirection;
@@ -34,7 +34,7 @@ app.sound = (function () {
             currentDirection *= -1;
             currentEffect += currentDirection;
         }
-    }
+    }*/
 
     function playBGAudio() {
         bgAudio.play();
@@ -46,7 +46,7 @@ app.sound = (function () {
     return {
         init: init,
         stopBGAudio: stopBGAudio,
-        playEffect: playEffect,
+        //playEffect: playEffect,
         playBGAudio: playBGAudio,
     }
 }());

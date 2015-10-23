@@ -29,11 +29,11 @@ app.main = {
     CARROTS: Object.freeze({
         NUM_CARROTS: 5,
         WIDTH: 40,
-        HEIGHT: 40,
+        HEIGHT: 85,
         XPOS: 10,
         YPOS: 10,
-        
-        
+
+
     }),
     BUN_STATE: Object.freeze({ //fake enumeration, actually an object literal
         STANDING: 0,
@@ -57,6 +57,9 @@ app.main = {
     carImage: undefined,
     carrotImage: undefined,
 
+    sound: undefined, //required - loaded by main.js
+    bgAudio: undefined,
+
     // methods
     init: function () {
         console.log("app.main.init() called");
@@ -73,9 +76,14 @@ app.main = {
 
         this.carImage = new Image();
         this.carImage.src = "images/redcar.png";
-        
+
         this.carrotImage = new Image();
         this.carrotImage.src = "images/carrot.png";
+
+        this.bgAudio = document.querySelector("#bgAudio")
+        this.bgAudio.volume = 0.25;
+
+        this.sound.playBGAudio();
 
         this.reset();
 
@@ -83,6 +91,26 @@ app.main = {
         this.update();
 
     },
+
+    pauseGame: function () {
+        this.paused = true;
+        //stop the animation loop
+        cancelAnimationFrame(this.animationID);
+        //call update() once so that our paused screen gets drawn
+        this.update();
+        this.stopBGAudio();
+    },
+
+    resumeGame: function () {
+        //stop the animation loop, just in case it's running
+        cancelAnimationFrame(this.animationID);
+        this.paused = false;
+        //restart the loop
+        this.update();
+
+        this.sound.playBGAudio();
+    },
+
 
     update: function () {
         // LOOP
@@ -93,7 +121,6 @@ app.main = {
             this.drawPauseScreen(this.ctx);
             return;
         }
-        
 
         // HOW MUCH TIME HAS GONE BY?
         // HOW MUCH TIME HAS GONE BY?
@@ -103,7 +130,6 @@ app.main = {
         this.moveObstacle(dt);
 
         this.checkCollision();
-        this.check4Collision();
 
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
@@ -111,10 +137,9 @@ app.main = {
         this.drawBun(this.ctx);
         this.drawObstacle(this.ctx);
         this.drawCarrots(this.ctx);
-        this.fillText(this.ctx, "Collect all your carrots:" + this.CARROT_COLLECT, this.WIDTH - 300, 20, "12pt courier", "#ddd");
-        
-    },
+        this.fillText(this.ctx, "Collect all your carrots: " + this.CARROT_COLLECT, this.WIDTH - 205, 30, "12pt Arial", "#ddd");
 
+    },
 
     reset: function () {
         this.BUN = this.makeBun();
@@ -135,22 +160,6 @@ app.main = {
         ctx.restore();
     },
 
-
-    pauseGame: function () {
-        this.paused = true;
-        //stop the animation loop
-        cancelAnimationFrame(this.animationID);
-        //call update() once so that our paused screen gets drawn
-        this.update();
-    },
-
-    resumeGame: function () {
-        //stop the animation loop, just in case it's running
-        cancelAnimationFrame(this.animationID);
-        this.paused = false;
-        //restart the loop
-        this.update();
-    },
     fillText: function (ctx, string, x, y, css, color) {
         ctx.save();
         ctx.font = css;
@@ -158,21 +167,18 @@ app.main = {
         ctx.fillText(string, x, y);
         ctx.restore();
     },
+
     checkCollision: function () {
         for (var i = 0; i < this.obstacles.length; i++) {
             if (squaresIntersect(this.BUN, this.obstacles[i])) {
                 this.obstacles[i].speed = 0;
             }
         }
-    },
-    
-    check4Collision: function () {
+
         for (var i = 0; i < this.carrots.length; i++) {
             if (squaresIntersect(this.BUN, this.carrots[i])) {
-                this.carrots[i].x = -190;
+                this.carrots[i].x = -190
                 this.CARROT_COLLECT++;
-            
-                
             }
         }
     },
@@ -256,33 +262,16 @@ app.main = {
         return array;
 
     },
-    
+
     makeCarrots: function (num) {
 
-        var obstacleMove = function (dt) {
-            if (this.x < this.playWidth) {
-                this.x += this.speed;
-            } else if (this.x >= this.playWidth) {
-                this.x = 0;
-            }
-        }
-
-        var obstacleDraw = function (ctx) {
+        var carrotsDraw = function (ctx) {
             ctx.save();
             ctx.translate(this.x, this.y)
             ctx.translate(this.width / 2, this.height / 2)
-            ctx.rotate(this.rotation);
+            ctx.rotate(Math.PI / 4);
             ctx.drawImage(this.image, -(this.width / 2), -(this.height / 2), this.width, this.height);
             ctx.restore();
-            /*            ctx.save();
-                        ctx.beginPath();
-                        ctx.rect(this.x, this.y, this.width, this.height);
-                        ctx.closePath();
-                        ctx.fillStyle = "red"
-                        ctx.strokeStyle = "white";
-                        ctx.fill();
-                        ctx.stroke();
-                        ctx.restore();*/
         }
 
         var array = [];
@@ -293,12 +282,11 @@ app.main = {
         while (numOb < 5) {
 
             var c = {};
-            c.width = this.OBSTACLE.WIDTH;
-            c.height = this.OBSTACLE.HEIGHT;
+            c.width = this.CARROTS.WIDTH;
+            c.height = this.CARROTS.HEIGHT;
 
             c.playWidth = this.WIDTH;
             c.playHeight = this.HEIGHT;
-
 
             c.x = 20;
             c.y = theY; //initial 40
@@ -318,14 +306,13 @@ app.main = {
             }
 
             if (make) {
-                c.x = getRandom(0, this.canvas.width-100);
-                c.y = getRandom(0, this.canvas.height-100);
+                c.x = getRandom(0, this.canvas.width - 100);
+                c.y = getRandom(0, this.canvas.height - 100);
 
                 c.image = this.carrotImage;
                 c.rotation = 0;
 
-                c.draw = obstacleDraw;
-                c.move = obstacleMove;
+                c.draw = carrotsDraw;
 
                 Object.seal(c);
                 array.push(c);
@@ -337,8 +324,8 @@ app.main = {
         return array;
 
     },
-    
-    
+
+
     makeBun: function () {
 
         var bunMove = function (dt) {
@@ -453,6 +440,10 @@ app.main = {
         fps = clamp(fps, 12, 60);
         this.lastTime = now;
         return 1 / fps;
+    },
+
+    stopBGAudio: function () {
+        this.sound.stopBGAudio()
     },
 
 }; // end app.main
