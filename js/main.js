@@ -26,6 +26,15 @@ app.main = {
         YPOS: 10,
         MOVE_SPEED: 8
     }),
+    CARROTS: Object.freeze({
+        NUM_CARROTS: 5,
+        WIDTH: 40,
+        HEIGHT: 40,
+        XPOS: 10,
+        YPOS: 10,
+        
+        
+    }),
     BUN_STATE: Object.freeze({ //fake enumeration, actually an object literal
         STANDING: 0,
         MOVING: 4
@@ -37,13 +46,16 @@ app.main = {
     }),
 
     obstacles: [],
+    carrots: [],
     paused: false,
     animationID: 0,
     gameState: undefined,
     roundScore: 0,
     hopped: false,
+    CARROT_COLLECT: 0,
     bunImage: undefined,
     carImage: undefined,
+    carrotImage: undefined,
 
     // methods
     init: function () {
@@ -57,10 +69,13 @@ app.main = {
         this.gameState = this.GAME_STATE.BEGIN;
 
         this.bunImage = new Image();
-        this.bunImage.src = "../images/bunny.png";
+        this.bunImage.src = "images/bunny.png";
 
         this.carImage = new Image();
-        this.carImage.src = "../images/redcar.png";
+        this.carImage.src = "images/redcar.png";
+        
+        this.carrotImage = new Image();
+        this.carrotImage.src = "images/carrot.png";
 
         this.reset();
 
@@ -78,9 +93,9 @@ app.main = {
             this.drawPauseScreen(this.ctx);
             return;
         }
+        
 
-
-
+        // HOW MUCH TIME HAS GONE BY?
         // HOW MUCH TIME HAS GONE BY?
         var dt = this.calculateDeltaTime();
 
@@ -88,18 +103,23 @@ app.main = {
         this.moveObstacle(dt);
 
         this.checkCollision();
+        this.check4Collision();
 
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
         this.drawBun(this.ctx);
         this.drawObstacle(this.ctx);
+        this.drawCarrots(this.ctx);
+        this.fillText(this.ctx, "Collect all your carrots:" + this.CARROT_COLLECT, this.WIDTH - 300, 20, "12pt courier", "#ddd");
+        
     },
 
 
     reset: function () {
         this.BUN = this.makeBun();
         this.obstacles = this.makeObs(this.OBSTACLE.NUM_OBSTACLES);
+        this.carrots = this.makeCarrots(this.CARROTS.NUM_CARROTS);
 
     },
 
@@ -131,11 +151,28 @@ app.main = {
         //restart the loop
         this.update();
     },
-
+    fillText: function (ctx, string, x, y, css, color) {
+        ctx.save();
+        ctx.font = css;
+        ctx.fillStyle = color;
+        ctx.fillText(string, x, y);
+        ctx.restore();
+    },
     checkCollision: function () {
         for (var i = 0; i < this.obstacles.length; i++) {
             if (squaresIntersect(this.BUN, this.obstacles[i])) {
                 this.obstacles[i].speed = 0;
+            }
+        }
+    },
+    
+    check4Collision: function () {
+        for (var i = 0; i < this.carrots.length; i++) {
+            if (squaresIntersect(this.BUN, this.carrots[i])) {
+                this.carrots[i].x = -190;
+                this.CARROT_COLLECT++;
+            
+                
             }
         }
     },
@@ -219,7 +256,89 @@ app.main = {
         return array;
 
     },
+    
+    makeCarrots: function (num) {
 
+        var obstacleMove = function (dt) {
+            if (this.x < this.playWidth) {
+                this.x += this.speed;
+            } else if (this.x >= this.playWidth) {
+                this.x = 0;
+            }
+        }
+
+        var obstacleDraw = function (ctx) {
+            ctx.save();
+            ctx.translate(this.x, this.y)
+            ctx.translate(this.width / 2, this.height / 2)
+            ctx.rotate(this.rotation);
+            ctx.drawImage(this.image, -(this.width / 2), -(this.height / 2), this.width, this.height);
+            ctx.restore();
+            /*            ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(this.x, this.y, this.width, this.height);
+                        ctx.closePath();
+                        ctx.fillStyle = "red"
+                        ctx.strokeStyle = "white";
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.restore();*/
+        }
+
+        var array = [];
+        var theY = 40;
+        var make = true;
+        var numOb = 0;
+
+        while (numOb < 5) {
+
+            var c = {};
+            c.width = this.OBSTACLE.WIDTH;
+            c.height = this.OBSTACLE.HEIGHT;
+
+            c.playWidth = this.WIDTH;
+            c.playHeight = this.HEIGHT;
+
+
+            c.x = 20;
+            c.y = theY; //initial 40
+
+
+            if (array.length > 0) { //if array is larger than 1
+                for (var n = 0; n < array.length; n++) { //loop thru exisiting array
+                    c.y = theY; //update the y value to latest theY
+                    if (squaresIntersect(array[n], c)) { //check if squares intersect
+                        make = false; //if they do, don't make the square
+                        theY = getRandom(0, c.playHeight - c.height); //find a new theY
+                        break;
+                    } else { //squares do not intersect
+                        make = true; //make the new square
+                    }
+                }
+            }
+
+            if (make) {
+                c.x = getRandom(0, this.canvas.width-100);
+                c.y = getRandom(0, this.canvas.height-100);
+
+                c.image = this.carrotImage;
+                c.rotation = 0;
+
+                c.draw = obstacleDraw;
+                c.move = obstacleMove;
+
+                Object.seal(c);
+                array.push(c);
+                numOb++;
+            }
+
+        }
+
+        return array;
+
+    },
+    
+    
     makeBun: function () {
 
         var bunMove = function (dt) {
@@ -292,6 +411,12 @@ app.main = {
 
         Object.seal(b);
         return b;
+    },
+    drawCarrots: function (ctx) {
+        for (var i = 0; i < this.carrots.length; i++) {
+            var c = this.carrots[i];
+            c.draw(ctx);
+        }
     },
 
     drawObstacle: function (ctx) {
