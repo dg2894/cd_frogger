@@ -22,7 +22,6 @@ window.onload = function () {
     app.main.init();
 };
 
-
 window.onblur = function () {
     console.log("blur at" + Date());
     app.main.pauseGame();

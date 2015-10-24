@@ -45,20 +45,25 @@ app.main = {
         END: 5
     }),
 
+
+
     obstacles: [],
     carrots: [],
-    paused: false,
+
     animationID: 0,
     gameState: undefined,
-    roundScore: 0,
+    paused: false,
+
     hopped: false,
     CARROT_COLLECT: 0,
+
     bunImage: undefined,
     carImage: undefined,
     carrotImage: undefined,
 
     sound: undefined, //required - loaded by main.js
     bgAudio: undefined,
+    currentLevel: 0,
 
     // methods
     init: function () {
@@ -85,7 +90,8 @@ app.main = {
 
         this.sound.playBGAudio();
 
-        this.reset();
+        this.setLevel(0);
+        //this.reset()
 
         //start the game loop
         this.update();
@@ -143,7 +149,7 @@ app.main = {
 
     reset: function () {
         this.BUN = this.makeBun();
-        this.obstacles = this.makeObs(this.OBSTACLE.NUM_OBSTACLES);
+        this.obstacles = this.makeObs(this.OBSTACLE.NUM_OBSTACLES, getRandom(5, 10));
         this.carrots = this.makeCarrots(this.CARROTS.NUM_CARROTS);
 
     },
@@ -172,6 +178,7 @@ app.main = {
         for (var i = 0; i < this.obstacles.length; i++) {
             if (squaresIntersect(this.BUN, this.obstacles[i])) {
                 this.obstacles[i].speed = 0;
+                this.bunImage.src = "images/splat.png";
             }
         }
 
@@ -183,7 +190,7 @@ app.main = {
         }
     },
 
-    makeObs: function (num) {
+    makeObs: function (num, speed) {
 
         var obstacleMove = function (dt) {
             if (this.x < this.playWidth) {
@@ -200,15 +207,6 @@ app.main = {
             ctx.rotate(this.rotation);
             ctx.drawImage(this.image, -(this.width / 2), -(this.height / 2), this.width, this.height);
             ctx.restore();
-            /*            ctx.save();
-                        ctx.beginPath();
-                        ctx.rect(this.x, this.y, this.width, this.height);
-                        ctx.closePath();
-                        ctx.fillStyle = "red"
-                        ctx.strokeStyle = "white";
-                        ctx.fill();
-                        ctx.stroke();
-                        ctx.restore();*/
         }
 
         var array = [];
@@ -244,7 +242,7 @@ app.main = {
             }
 
             if (make) {
-                o.speed = getRandom(2, 10);
+                o.speed = speed;
 
                 o.image = this.carImage;
                 o.rotation = 0;
@@ -325,6 +323,34 @@ app.main = {
 
     },
 
+    setLevel: function (currentLevel) {
+        var levels = [
+            //level 1
+            {
+                carrotNum: 3,
+                carSpeed: getRandom(5, 8),
+                obstacles: 3
+            },
+
+            //level 2
+            {
+                carrotNum: 5,
+                carSpeed: getRandom(5, 10),
+                obstacles: 5
+            },
+
+            //level 3
+            {
+                carrotNum: 8,
+                carSpeed: getRandom(8, 12),
+                obstacles: 7
+            }
+        ]
+
+        this.BUN = this.makeBun();
+        this.obstacles = this.makeObs(levels[currentLevel].obstacles, levels[currentLevel].carSpeed);
+        this.carrots = this.makeCarrots(levels[currentLevel].carrotNum);
+    },
 
     makeBun: function () {
 
@@ -359,14 +385,6 @@ app.main = {
             ctx.rotate(this.rotation);
             ctx.drawImage(this.image, -(this.width / 2), -(this.height / 2), this.width, this.height);
             ctx.restore();
-            /*ctx.save();
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.closePath();
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.restore();*/
-
         };
 
         var b = {};
