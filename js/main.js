@@ -98,7 +98,6 @@ app.main = {
 
         this.setLevel(0);
         this.bunState = this.BUN_STATE.MOVING;
-        //this.reset()
 
         //start the game loop
         this.update();
@@ -169,13 +168,6 @@ app.main = {
         this.drawCarrots(this.ctx);
 
         this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Arial", "#ddd");
-
-    },
-
-    reset: function () {
-        this.BUN = this.makeBun();
-        this.obstacles = this.makeObs(this.OBSTACLE.NUM_OBSTACLES, getRandom(5, 10));
-        this.carrots = this.makeCarrots(this.CARROTS.NUM_CARROTS);
 
     },
 
