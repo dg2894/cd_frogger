@@ -1,3 +1,11 @@
+//things to do
+
+//make start level
+
+
+
+
+
 "use strict";
 
 var app = app || {};
@@ -90,6 +98,9 @@ app.main = {
 
         this.endImage = new Image();
         this.endImage.src = "images/endgame.jpg";
+        
+        this.startImage = new Image();
+        this.startImage.src = "images/startgame.jpg";
 
         this.bgAudio = document.querySelector("#bgAudio")
         this.bgAudio.volume = 0.25;
@@ -136,6 +147,7 @@ app.main = {
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return;
+            
         } else if (this.gameState === this.GAME_STATE.ROUND_OVER) {
             if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]) {
                 this.gameState = this.GAME_STATE.DEFAULT;
@@ -146,11 +158,34 @@ app.main = {
                 this.drawWinScreen(this.ctx);
                 return;
             }
+            
+            
         } else if (this.gameState === this.GAME_STATE.END) {
+            if(myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]){
+                this.gameState = this.GAME_STATE.BEGIN;
+                this.currentLevel = 0;
+                this.setLevel(this.currentLevel);
+                this.bunState = this.BUN_STATE.MOVING;
+            }
             this.drawEndScreen(this.ctx);
             return;
+        
         }
-
+        else if (this.gameState === this.GAME_STATE.BEGIN) {
+            if(myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]){
+                this.gameState == this.GAME_STATE.DEFAULT; 
+                this.currentLevel = 0;
+                this.setLevel(this.currentLevel);
+                this.bunState = this.BUN_STATE.MOVING;
+                //return;
+            }
+        else{
+            this.drawStartScreen(this.ctx);
+            return;
+            }
+            
+        }
+         
 
         // HOW MUCH TIME HAS GONE BY?
         var dt = this.calculateDeltaTime();
@@ -168,7 +203,9 @@ app.main = {
         this.drawCarrots(this.ctx);
 
         this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Arial", "#ddd");
-
+        
+       
+         
     },
 
     drawPauseScreen: function (ctx) {
@@ -191,14 +228,21 @@ app.main = {
         ctx.textBaseline = "middle";
         ctx.fillStyle = "white";
         ctx.font = "12pt Arial"
-        ctx.fillText("GOOD JOB", this.WIDTH / 2, this.HEIGHT / 2);
+        ctx.fillText("Great job! Press enter for the next level", this.WIDTH / 2, this.HEIGHT / 2);
         ctx.restore();
+    },
+     drawStartScreen: function (ctx) {
+       
+        ctx.fillStyle = "black";
+        ctx.drawImage(this.startImage, 0, 0, this.WIDTH, this.HEIGHT);
+        
     },
 
     drawEndScreen: function (ctx) {
         ctx.save();
         ctx.fillStyle = "black";
         ctx.drawImage(this.endImage, 0, 0, this.WIDTH, this.HEIGHT);
+       
     },
 
     fillText: function (ctx, string, x, y, css, color) {
@@ -213,7 +257,6 @@ app.main = {
         for (var i = 0; i < this.obstacles.length; i++) {
             if (bunIntersect(this.BUN, this.obstacles[i])) {
                 this.obstacles[i].speed = 0;
-                this.bunImage.src = "images/splat.png";
                 this.bunState = this.BUN_STATE.KILLED;
                 this.gameState = this.GAME_STATE.END;
             }
