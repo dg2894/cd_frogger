@@ -168,7 +168,7 @@ app.main = {
         this.drawObstacle(this.ctx);
         this.drawCarrots(this.ctx);
 
-        this.fillText(this.ctx, "Collect all your carrots: " + this.CARROT_COLLECT, this.WIDTH - 205, 30, "12pt Arial", "#ddd");
+        this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Arial", "#ddd");
 
     },
 
@@ -379,7 +379,6 @@ app.main = {
         }
 
         return array;
-
     },
 
     setLevel: function (currentLevel) {
@@ -434,6 +433,10 @@ app.main = {
             } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_DOWN] && this.y < this.playHeight - this.height && !app.main.hopped) {
                 this.y += this.width;
                 this.rotation = Math.PI;
+                app.main.hopped = true;
+            } else if (myKeys.keydown[myKeys.KEYBOARD.KEY_LEFT] && myKeys.keydown[myKeys.KEYBOARD.KEY_RIGHT]) {
+                this.x = this.playWidth - 75;
+                this.y = this.playHeight - 75;
                 app.main.hopped = true;
             } else {
                 this.x += 0;
