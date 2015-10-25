@@ -62,8 +62,8 @@ app.main = {
     gameState: undefined,
     bunState: undefined,
     paused: false,
-
     hopped: false,
+    pressed: false,
     CARROT_COLLECT: 0,
 
     bunImage: undefined,
@@ -98,7 +98,7 @@ app.main = {
 
         this.endImage = new Image();
         this.endImage.src = "images/endgame.jpg";
-        
+
         this.startImage = new Image();
         this.startImage.src = "images/startgame.jpg";
 
@@ -147,7 +147,6 @@ app.main = {
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return;
-            
         } else if (this.gameState === this.GAME_STATE.ROUND_OVER) {
             if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]) {
                 this.gameState = this.GAME_STATE.DEFAULT;
@@ -158,34 +157,30 @@ app.main = {
                 this.drawWinScreen(this.ctx);
                 return;
             }
-            
-            
         } else if (this.gameState === this.GAME_STATE.END) {
-            if(myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]){
+            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
                 this.gameState = this.GAME_STATE.BEGIN;
+                this.pressed = true;
+                return;
+            } else {
+                this.drawEndScreen(this.ctx);
+                return;
+            }
+        } else if (this.gameState === this.GAME_STATE.BEGIN) {
+            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
+                this.gameState = this.GAME_STATE.DEFAULT;
                 this.currentLevel = 0;
-                this.setLevel(this.currentLevel);
+                this.setLevel(this.currentLevel)
                 this.bunState = this.BUN_STATE.MOVING;
+                this.pressed = true;
+                return;
+            } else {
+                this.drawStartScreen(this.ctx);
+                return;
             }
-            this.drawEndScreen(this.ctx);
-            return;
-        
         }
-        else if (this.gameState === this.GAME_STATE.BEGIN) {
-            if(myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]){
-                this.gameState == this.GAME_STATE.DEFAULT; 
-                this.currentLevel = 0;
-                this.setLevel(this.currentLevel);
-                this.bunState = this.BUN_STATE.MOVING;
-                //return;
-            }
-        else{
-            this.drawStartScreen(this.ctx);
-            return;
-            }
-            
-        }
-         
+
+        console.log(this.pressed);
 
         // HOW MUCH TIME HAS GONE BY?
         var dt = this.calculateDeltaTime();
@@ -203,9 +198,9 @@ app.main = {
         this.drawCarrots(this.ctx);
 
         this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Arial", "#ddd");
-        
-       
-         
+
+
+
     },
 
     drawPauseScreen: function (ctx) {
@@ -231,18 +226,18 @@ app.main = {
         ctx.fillText("Great job! Press enter for the next level", this.WIDTH / 2, this.HEIGHT / 2);
         ctx.restore();
     },
-     drawStartScreen: function (ctx) {
-       
+    drawStartScreen: function (ctx) {
+
         ctx.fillStyle = "black";
         ctx.drawImage(this.startImage, 0, 0, this.WIDTH, this.HEIGHT);
-        
+
     },
 
     drawEndScreen: function (ctx) {
         ctx.save();
         ctx.fillStyle = "black";
         ctx.drawImage(this.endImage, 0, 0, this.WIDTH, this.HEIGHT);
-       
+
     },
 
     fillText: function (ctx, string, x, y, css, color) {

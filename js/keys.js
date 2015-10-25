@@ -32,6 +32,7 @@ window.addEventListener("keyup", function (e) {
     //console.log("keyup=" + e.keyCode);
     myKeys.keydown[e.keyCode] = false;
     app.main.hopped = false;
+    app.main.pressed = false;
 
     // pausing and resuming
     var char = String.fromCharCode(e.keyCode);
