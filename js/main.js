@@ -24,7 +24,8 @@ app.main = {
         HEIGHT: 63,
         XPOS: 10,
         YPOS: 10,
-        MOVE_SPEED: 8
+        MOVE_SPEED: 8,
+        EXHAUST: undefined
     }),
     CARROTS: Object.freeze({
         NUM_CARROTS: 5,
@@ -32,8 +33,6 @@ app.main = {
         HEIGHT: 66,
         XPOS: 10,
         YPOS: 10,
-
-
     }),
 
     BUN_STATE: Object.freeze({ //fake enumeration, actually an object literal
@@ -47,8 +46,6 @@ app.main = {
         ROUND_OVER: 2,
         END: 3
     }),
-
-
 
     obstacles: [],
     carrots: [],
@@ -103,22 +100,10 @@ app.main = {
         this.bunState = this.BUN_STATE.MOVING;
         //this.reset()
 
-        this.canvas.onmousedown = this.doMousedown.bind(this);
         //start the game loop
         this.update();
 
     },
-
-    doMousedown: function (e) {
-        //if the round is over, reset and add 5 more circles
-        if (this.gameState == this.GAME_STATE.ROUND_OVER) {
-            this.gameState = this.GAME_STATE.DEFAULT;
-            this.currentLevel += 1;
-            this.setLevel(this.currentLevel)
-            return;
-        }
-    },
-
 
     pauseGame: function () {
         this.paused = true;
@@ -219,7 +204,6 @@ app.main = {
     },
 
     drawEndScreen: function (ctx) {
-        console.log("draw");
         ctx.save();
         ctx.fillStyle = "black";
         ctx.drawImage(this.endImage, 0, 0, this.WIDTH, this.HEIGHT);
@@ -268,6 +252,16 @@ app.main = {
             ctx.rotate(this.rotation);
             ctx.drawImage(this.image, -(this.width / 2), -(this.height / 2), this.width, this.height);
             ctx.restore();
+
+            this.exhaust.updateAndDraw(ctx, this.emitterPoint());
+        }
+
+        var emitterPoint = function () {
+            // 2 pixels underneath the bottom of the ship
+            return {
+                x: this.x,
+                y: this.y + this.height / 2
+            };
         }
 
         var array = [];
@@ -278,16 +272,24 @@ app.main = {
         while (numOb < num) {
 
             var o = {};
+
             o.width = this.OBSTACLE.WIDTH;
             o.height = this.OBSTACLE.HEIGHT;
 
             o.playWidth = this.WIDTH;
             o.playHeight = this.HEIGHT;
+            o.emitterPoint = emitterPoint;
 
-
-            o.x = 120;
+            o.x = 0;
             o.y = theY; //initial 40
 
+            o.exhaust = new app.Emitter(); // oops - global
+            o.exhaust.numParticles = 50;
+            o.exhaust.red = 160;
+            o.exhaust.green = 160;
+            o.exhaust.blue = 160;
+
+            o.exhaust.createParticles(o.emitterPoint);
 
             if (array.length > 0) { //if array is larger than 1
                 for (var n = 0; n < array.length; n++) { //loop thru exisiting array
@@ -385,24 +387,24 @@ app.main = {
             //level 1
             {
                 carrotNum: 3,
-                lowSpeed: 0,
-                topSpeed: 0,
+                lowSpeed: 1,
+                topSpeed: 5,
                 obstacles: 3
             },
 
             //level 2
             {
                 carrotNum: 5,
-                lowSpeed: 5,
-                topSpeed: 10,
+                lowSpeed: 3,
+                topSpeed: 8,
                 obstacles: 5
             },
 
             //level 3
             {
                 carrotNum: 8,
-                lowSpeed: 8,
-                topSpeed: 12,
+                lowSpeed: 5,
+                topSpeed: 7,
                 obstacles: 7
             }
         ]

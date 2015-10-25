@@ -19,6 +19,7 @@ window.onload = function () {
     //http://addyosmani.com/writing-modular-js
     app.sound.init();
     app.main.sound = app.sound;
+    app.Emitter.utils = app.utils;
     app.main.init();
 };
 
