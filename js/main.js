@@ -1,6 +1,6 @@
 //things to do
 
-//make start level
+//change end screen and make pressed change
 
 
 
@@ -101,6 +101,9 @@ app.main = {
 
         this.startImage = new Image();
         this.startImage.src = "images/startgame.jpg";
+        
+        this.winImage = new Image();
+        this.winImage.src = "images/wingame.jpg";
 
         this.bgAudio = document.querySelector("#bgAudio")
         this.bgAudio.volume = 0.25;
@@ -151,7 +154,7 @@ app.main = {
             if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER]) {
                 this.gameState = this.GAME_STATE.DEFAULT;
                 this.currentLevel += 1;
-                this.setLevel(this.currentLevel)
+                this.setLevel(this.currentLevel);
                 return;
             } else {
                 this.drawWinScreen(this.ctx);
@@ -164,6 +167,15 @@ app.main = {
                 return;
             } else {
                 this.drawEndScreen(this.ctx);
+                return;
+            }
+        } else if (this.gameState === this.GAME_STATE.END && this.CARROT_COLLECT == 8) {
+            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
+                this.gameState = this.GAME_STATE.BEGIN;
+                this.pressed = true;
+                return;
+            } else {
+                this.drawEndWinScreen(this.ctx);
                 return;
             }
         } else if (this.gameState === this.GAME_STATE.BEGIN) {
@@ -197,7 +209,7 @@ app.main = {
         this.drawObstacle(this.ctx);
         this.drawCarrots(this.ctx);
 
-        this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Arial", "#ddd");
+        this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Open Sans", "#ddd");
 
 
 
@@ -210,7 +222,7 @@ app.main = {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "white";
-        ctx.font = "12pt Arial"
+        ctx.font = "12pt Open Sans"
         ctx.fillText("PAUSED", this.WIDTH / 2, this.HEIGHT / 2);
         ctx.restore();
     },
@@ -222,7 +234,7 @@ app.main = {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "white";
-        ctx.font = "12pt Arial"
+        ctx.font = "12pt Open Sans"
         ctx.fillText("Great job! Press enter for the next level", this.WIDTH / 2, this.HEIGHT / 2);
         ctx.restore();
     },
@@ -237,6 +249,12 @@ app.main = {
         ctx.save();
         ctx.fillStyle = "black";
         ctx.drawImage(this.endImage, 0, 0, this.WIDTH, this.HEIGHT);
+
+    },
+    drawEndWinScreen: function (ctx) {
+        ctx.save();
+        ctx.fillStyle = "black";
+        ctx.drawImage(this.winImage, 0, 0, this.WIDTH, this.HEIGHT);
 
     },
 
