@@ -101,7 +101,7 @@ app.main = {
 
         this.startImage = new Image();
         this.startImage.src = "images/startgame.jpg";
-        
+
         this.winImage = new Image();
         this.winImage.src = "images/wingame.jpg";
 
@@ -143,12 +143,6 @@ app.main = {
         // schedule a call to update()
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
-        if (this.CARROT_COLLECT == this.carrots.length) {
-            this.gameState = this.GAME_STATE.ROUND_OVER;
-        }
-     
-    
-
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return;
@@ -162,31 +156,19 @@ app.main = {
                 this.drawWinScreen(this.ctx);
                 return;
             }
-        }
-         else if (this.gameState === this.GAME_STATE.END) {
-             if (this.CARROT_COLLECT == this.carrots.length && this.gameState === this.GAME_STATE.END && this.currentLevel == 3){
-                if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {   
-                    this.gameState = this.GAME_STATE.BEGIN;
-                    this.pressed = true;
-                    return;
-                } else {
+        } else if (this.gameState === this.GAME_STATE.END) {
+            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
+                this.gameState = this.GAME_STATE.BEGIN;
+                this.pressed = true;
+                return;
+            } else if (this.CARROT_COLLECT == this.carrots.length) {
                 this.drawEndWinScreen(this.ctx);
                 return;
-                }
+            } else {
+                this.drawEndScreen(this.ctx);
+                return;
             }
-             if (this.gameState === this.GAME_STATE.END) {
-                if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
-                    this.gameState = this.GAME_STATE.BEGIN;
-                    this.pressed = true;
-                    return;
-                } else {
-                    this.drawEndScreen(this.ctx);
-                    return;
-                }
-             }
-              
-         }
-         else if (this.gameState === this.GAME_STATE.BEGIN) {
+        } else if (this.gameState === this.GAME_STATE.BEGIN) {
             if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
                 this.gameState = this.GAME_STATE.DEFAULT;
                 this.currentLevel = 0;
@@ -199,8 +181,11 @@ app.main = {
                 return;
             }
         }
-
-        console.log(this.pressed);
+        if (this.CARROT_COLLECT == this.carrots.length && this.currentLevel == 2) {
+            this.gameState = this.GAME_STATE.END;
+        } else if (this.CARROT_COLLECT == this.carrots.length) {
+            this.gameState = this.GAME_STATE.ROUND_OVER;
+        }
 
         // HOW MUCH TIME HAS GONE BY?
         var dt = this.calculateDeltaTime();
@@ -218,9 +203,6 @@ app.main = {
         this.drawCarrots(this.ctx);
 
         this.fillText(this.ctx, "COLLECT ALL YOUR CARROTS: " + this.CARROT_COLLECT, this.WIDTH - 280, 30, "12pt Open Sans", "#ddd");
-
-
-
     },
 
     drawPauseScreen: function (ctx) {

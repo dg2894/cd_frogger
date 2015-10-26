@@ -114,8 +114,8 @@ function squaresIntersect(c1, c2) {
 }
 
 function bunIntersect(c1, c2) {
-    if (c1.x < c2.x + c2.width / 2 && c1.x + c1.width / 2 > c2.x &&
-        c1.y < c2.y + c2.height / 2 && c1.y + c1.height / 2 > c2.y) {
+    if (c1.x < c2.x + c2.width / 1.2 && c1.x + c1.width / 1.2 > c2.x &&
+        c1.y < c2.y + c2.height / 1.2 && c1.y + c1.height / 1.2 > c2.y) {
         return true;
     }
 }
