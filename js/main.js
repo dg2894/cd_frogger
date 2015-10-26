@@ -32,7 +32,7 @@ app.main = {
         HEIGHT: 63,
         XPOS: 10,
         YPOS: 10,
-        MOVE_SPEED: 8,
+        MOVE_SPEED: 0,
         EXHAUST: undefined
     }),
     CARROTS: Object.freeze({
@@ -146,6 +146,8 @@ app.main = {
         if (this.CARROT_COLLECT == this.carrots.length) {
             this.gameState = this.GAME_STATE.ROUND_OVER;
         }
+     
+    
 
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
@@ -160,25 +162,31 @@ app.main = {
                 this.drawWinScreen(this.ctx);
                 return;
             }
-        } else if (this.gameState === this.GAME_STATE.END) {
-            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
-                this.gameState = this.GAME_STATE.BEGIN;
-                this.pressed = true;
-                return;
-            } else {
-                this.drawEndScreen(this.ctx);
-                return;
-            }
-        } else if (this.gameState === this.GAME_STATE.END && this.CARROT_COLLECT == 8) {
-            if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
-                this.gameState = this.GAME_STATE.BEGIN;
-                this.pressed = true;
-                return;
-            } else {
+        }
+         else if (this.gameState === this.GAME_STATE.END) {
+             if (this.CARROT_COLLECT == this.carrots.length && this.gameState === this.GAME_STATE.END && this.currentLevel == 3){
+                if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {   
+                    this.gameState = this.GAME_STATE.BEGIN;
+                    this.pressed = true;
+                    return;
+                } else {
                 this.drawEndWinScreen(this.ctx);
                 return;
+                }
             }
-        } else if (this.gameState === this.GAME_STATE.BEGIN) {
+             if (this.gameState === this.GAME_STATE.END) {
+                if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
+                    this.gameState = this.GAME_STATE.BEGIN;
+                    this.pressed = true;
+                    return;
+                } else {
+                    this.drawEndScreen(this.ctx);
+                    return;
+                }
+             }
+              
+         }
+         else if (this.gameState === this.GAME_STATE.BEGIN) {
             if (myKeys.keydown[myKeys.KEYBOARD.KEY_ENTER] && this.pressed == false) {
                 this.gameState = this.GAME_STATE.DEFAULT;
                 this.currentLevel = 0;
